@@ -23,7 +23,7 @@ router.post('/signup', async (req, res) => {
 
     } catch (err) {
         return res.status(404).send(err.message)
-    }
+    } 
 });
 
 module.exports = router;
