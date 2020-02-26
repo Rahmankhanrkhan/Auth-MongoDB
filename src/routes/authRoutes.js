@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const User = mongoose.model('Profile');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+
 
 const router = express.Router();
 
@@ -23,7 +24,27 @@ router.post('/signup', async (req, res) => {
 
     } catch (err) {
         return res.status(404).send(err.message)
-    } 
+    }
 });
+
+router.post('/signin', async (req, res) => {
+    // console.log('')
+    const { email, password } = req.body;
+    if (!email || !password) {
+        res.status(422).send({ error: 'enter with email and password ' })
+    };
+    const user = await User.findOne({ email })
+    if (!user) {
+        res.status(422).send({ error: 'No data found in db' })
+    }
+    try {
+        await user.comparePassword(password);
+        const token = jwt.sign({userId:user._id},'MY_SECRETE_KEY')
+        res.send({token})
+    } catch (err) {
+        res.status(422).send({ message: 'Try again with new password...' })
+    }
+})
+
 
 module.exports = router;
