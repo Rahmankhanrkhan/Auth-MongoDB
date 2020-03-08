@@ -3,6 +3,12 @@ const mongoose = require('mongoose');
 const User = mongoose.model('Profile');
 const jwt = require('jsonwebtoken');
 
+const {jwtsecret} = require('../config/jwtsecret');
+
+const signToken = user =>{
+    return jwt.sign({ userId: user._id }, jwtsecret);
+}
+
 
 const router = express.Router();
 
@@ -15,7 +21,7 @@ router.post('/signup', async (req, res) => {
         const user = new User({ email, password });
         await user.save();
 
-        const token = jwt.sign({ userId: user._id }, 'MY_SECRETE_KEY');
+        const token = signToken(user)
         console.log('token:::', token)
 
         res.send({ token });
@@ -39,7 +45,7 @@ router.post('/signin', async (req, res) => {
     }
     try {
         await user.comparePassword(password);
-        const token = jwt.sign({userId:user._id},'MY_SECRETE_KEY')
+        const token = signToken(user)
         res.send({token})
     } catch (err) {
         res.status(422).send({ message: 'Try again with new password...' })
